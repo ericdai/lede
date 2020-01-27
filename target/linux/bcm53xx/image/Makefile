@@ -59,9 +59,7 @@ define Build/trx
 endef
 
 define Build/trx-serial
-	$(STAGING_DIR_HOST)/bin/trx \
-		-o $@.new \
-		-m 33554432 \
+	$(STAGING_DIR_HOST)/bin/otrx create $@.new \
 		-f $(IMAGE_KERNEL) -a 1024 \
 		-f $@ -a 0x10000 -A $(KDIR)/fs_mark
 	mv $@.new $@
@@ -72,9 +70,7 @@ define Build/trx-nand
 	#	  if it grows up between releases
 	# root: UBI with one extra block containing UBI mark to trigger erasing
 	#	rest of partition
-	$(STAGING_DIR_HOST)/bin/trx \
-		-o $@.new \
-		-m 33554432 \
+	$(STAGING_DIR_HOST)/bin/otrx create $@.new \
 		-f $(IMAGE_KERNEL) -a 0x20000 -b 0x400000 \
 		-f $@ \
 		-A $(KDIR)/ubi_mark -a 0x20000
@@ -107,11 +103,11 @@ endef
 DEVICE_VARS += PRODUCTID SIGNATURE NETGEAR_BOARD_ID NETGEAR_REGION TPLINK_BOARD
 DEVICE_VARS += BUFFALO_TAG_PLATFORM BUFFALO_TAG_VERSION BUFFALO_TAG_MINOR
 
-IEEE8021X := wpad-mini
+IEEE8021X := wpad-basic
 B43 := $(IEEE8021X) kmod-b43
 BRCMFMAC_43602A1 := $(IEEE8021X) kmod-brcmfmac brcmfmac-firmware-43602a1-pcie
 BRCMFMAC_4366B1 := $(IEEE8021X) kmod-brcmfmac brcmfmac-firmware-4366b1-pcie
-BRCMFMAC_4366C0 := $(IEEE8021X) kmod-brcmfmac
+BRCMFMAC_4366C0 := $(IEEE8021X) kmod-brcmfmac k3wifi
 USB2_PACKAGES := kmod-usb-ohci kmod-usb2 kmod-phy-bcm-ns-usb2
 USB2_PACKAGES += kmod-usb-ledtrig-usbport
 USB3_PACKAGES := $(USB2_PACKAGES) kmod-usb3 kmod-phy-bcm-ns-usb3
@@ -228,12 +224,17 @@ endef
 TARGET_DEVICES += dlink-dir-885l
 
 # Linksys devices are disabled due to problem with 2 TRX partitions
-
 define Device/linksys-ea6300-v1
   DEVICE_TITLE := Linksys EA6300 V1
   DEVICE_PACKAGES := $(B43) $(USB3_PACKAGES)
 endef
 # TARGET_DEVICES += linksys-ea6300-v1
+
+define Device/linksys-ea6500-v2
+  DEVICE_TITLE := Linksys EA6500 V2
+  DEVICE_PACKAGES := $(B43) $(USB3_PACKAGES)
+endef
+TARGET_DEVICES += linksys-ea6500-v2
 
 define Device/linksys-ea9200
   DEVICE_TITLE := Linksys EA9200 V1
@@ -247,13 +248,6 @@ define Device/linksys-ea9500
   DEVICE_DTS := bcm47094-linksys-panamera
 endef
 # TARGET_DEVICES += linksys-ea9500
-
-define Device/phicomm-k3
-  DEVICE_TITLE := PHICOMM K3
-  DEVICE_PACKAGES := $(BRCMFMAC_4366C0) $(USB3_PACKAGES) + k3wifi + k3screenctrl
-  IMAGES := trx
-endef
-TARGET_DEVICES += phicomm-k3
 
 define Device/netgear
   IMAGES := chk
@@ -314,8 +308,29 @@ define Device/smartrg-sr400ac
   DEVICE_PACKAGES := $(BRCMFMAC_43602A1) $(USB3_PACKAGES)
   IMAGES := trx
   IMAGE/trx := append-rootfs | trx-serial
+  KERNEL_INITRAMFS_SUFFIX := .bin
+  KERNEL_INITRAMFS := kernel-bin | append-dtb | lzma-d16
 endef
-# TARGET_DEVICES += smartrg-sr400ac
+TARGET_DEVICES += smartrg-sr400ac
+
+define Device/phicomm-k3
+  DEVICE_TITLE := PHICOMM K3
+  DEVICE_PACKAGES := $(BRCMFMAC_4366C0) $(USB3_PACKAGES) k3screenctrl
+  IMAGES := trx
+endef
+TARGET_DEVICES += phicomm-k3
+
+define Device/arris-sbr-ac1900p
+  DEVICE_TITLE := ARRIS SBR-AC1900P
+  DEVICE_PACKAGES := $(USB3_PACKAGES)
+endef
+TARGET_DEVICES += arris-sbr-ac1900p
+
+define Device/arris-sbr-ac3200p
+  DEVICE_TITLE := ARRIS SBR-AC3200P
+  DEVICE_PACKAGES := $(BRCMFMAC_43602A1) $(USB3_PACKAGES)
+endef
+TARGET_DEVICES += arris-sbr-ac3200p
 
 define Device/tenda-ac9
   DEVICE_TITLE := Tenda AC9
@@ -323,7 +338,7 @@ define Device/tenda-ac9
   IMAGES := trx
   IMAGE/trx := append-rootfs | trx-serial
 endef
-# TARGET_DEVICES += tenda-ac9
+#TARGET_DEVICES += tenda-ac9
 
 define Device/tplink-archer-c5-v2
   DEVICE_TITLE := TP-LINK Archer C5 V2
@@ -332,7 +347,7 @@ define Device/tplink-archer-c5-v2
   IMAGE/bin := append-rootfs | bcm53xx-tplink-safeloader
   TPLINK_BOARD := ARCHER-C5-V2
 endef
-# TARGET_DEVICES += tplink-archer-c5-v2
+#TARGET_DEVICES += tplink-archer-c5-v2
 
 define Device/tplink-archer-c9-v1
   DEVICE_TITLE := TP-LINK Archer C9 V1
@@ -341,6 +356,6 @@ define Device/tplink-archer-c9-v1
   IMAGE/bin := append-rootfs | bcm53xx-tplink-safeloader
   TPLINK_BOARD := ARCHERC9
 endef
-# TARGET_DEVICES += tplink-archer-c9-v1
+#TARGET_DEVICES += tplink-archer-c9-v1
 
 $(eval $(call BuildImage))

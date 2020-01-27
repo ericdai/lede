@@ -59,10 +59,16 @@ else
 
   LINUX_KERNEL:=$(KERNEL_BUILD_DIR)/vmlinux
 
-  LINUX_SOURCE:=linux-$(LINUX_VERSION).tar.xz
-  TESTING:=$(if $(findstring -rc,$(LINUX_VERSION)),/testing,)
-  ifeq ($(call qstrip,$(CONFIG_EXTERNAL_KERNEL_TREE))$(call qstrip,$(CONFIG_KERNEL_GIT_CLONE_URI)),)
-      LINUX_SITE:=@KERNEL/linux/kernel/v$(word 1,$(subst ., ,$(KERNEL_BASE))).x$(TESTING)
+  ifneq (,$(findstring -rc,$(LINUX_VERSION)))
+      LINUX_SOURCE:=linux-$(LINUX_VERSION).tar.gz
+  else
+      LINUX_SOURCE:=linux-$(LINUX_VERSION).tar.xz
+  endif
+
+  ifneq (,$(findstring -rc,$(LINUX_VERSION)))
+      LINUX_SITE:=https://git.kernel.org/torvalds/t
+  else ifeq ($(call qstrip,$(CONFIG_EXTERNAL_KERNEL_TREE))$(call qstrip,$(CONFIG_KERNEL_GIT_CLONE_URI)),)
+      LINUX_SITE:=@KERNEL/linux/kernel/v$(word 1,$(subst ., ,$(KERNEL_BASE))).x
   else
       LINUX_UNAME_VERSION:=$(strip $(shell cat $(LINUX_DIR)/include/config/kernel.release 2>/dev/null))
   endif
@@ -97,7 +103,7 @@ endif
 
 KERNEL_MAKE = $(MAKE) $(KERNEL_MAKEOPTS)
 
-KERNEL_MAKE_FLAGS := \
+KERNEL_MAKE_FLAGS = \
 	HOSTCFLAGS="$(HOST_CFLAGS) -Wall -Wmissing-prototypes -Wstrict-prototypes" \
 	CROSS_COMPILE="$(KERNEL_CROSS)" \
 	ARCH="$(LINUX_KARCH)" \
@@ -225,8 +231,7 @@ $(call KernelPackage/$(1)/config)
   $(call KernelPackage/hooks)
 
   ifneq ($(if $(filter-out %=y %=n %=m,$(KCONFIG)),$(filter m y,$(foreach c,$(filter-out %=y %=n %=m,$(KCONFIG)),$($(c)))),.),)
-    ifneq ($(strip $(FILES)),)
-      define Package/kmod-$(1)/install
+    define Package/kmod-$(1)/install
 		  @for mod in $$(call version_filter,$$(FILES)); do \
 			if grep -q "$$$$$$$${mod##$(LINUX_DIR)/}" "$(LINUX_DIR)/modules.builtin"; then \
 				echo "NOTICE: module '$$$$$$$$mod' is built-in."; \
@@ -240,8 +245,7 @@ $(call KernelPackage/$(1)/config)
 		  done;
 		  $(call ModuleAutoLoad,$(1),$$(1),$(filter-out 0-,$(word 1,$(AUTOLOAD))-),$(filter-out 0,$(word 2,$(AUTOLOAD))),$(wordlist 3,99,$(AUTOLOAD)))
 		  $(call KernelPackage/$(1)/install,$$(1))
-      endef
-    endif
+    endef
   $(if $(CONFIG_PACKAGE_kmod-$(1)),
     else
       compile: $(1)-disabled
@@ -255,7 +259,8 @@ $(call KernelPackage/$(1)/config)
   endif
   $$(eval $$(call BuildPackage,kmod-$(1)))
 
-  $$(IPKG_kmod-$(1)): $$(wildcard $$(FILES))
+  $$(IPKG_kmod-$(1)): $$(wildcard $$(call version_filter,$$(FILES)))
+
 endef
 
 version_filter=$(if $(findstring @,$(1)),$(shell $(SCRIPT_DIR)/package-metadata.pl version_filter $(KERNEL_PATCHVER) $(1)),$(1))

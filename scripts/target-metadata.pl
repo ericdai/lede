@@ -40,6 +40,8 @@ sub target_config_features(@) {
 		/^small_flash$/ and $ret .= "\tselect SMALL_FLASH\n";
 		/^nand$/ and $ret .= "\tselect NAND_SUPPORT\n";
 		/^virtio$/ and $ret .= "\tselect VIRTIO_SUPPORT\n";
+		/^rootfs-part$/ and $ret .= "\tselect USES_ROOTFS_PART\n";
+		/^boot-part$/ and $ret .= "\tselect USES_BOOT_PART\n";
 	}
 	return $ret;
 }
@@ -168,7 +170,7 @@ EOF
 	print <<EOF;
 choice
 	prompt "Target System"
-	default TARGET_ar71xx
+	default TARGET_x86
 	reset if !DEVEL
 	
 EOF
@@ -290,7 +292,7 @@ EOF
 menuconfig TARGET_DEVICE_$target->{conf}_$profile->{id}
 	bool "$profile->{name}"
 	depends on TARGET_$target->{conf}
-	default y if TARGET_ALL_PROFILES
+	default $profile->{default}
 EOF
 			my @pkglist = merge_package_lists($target->{packages}, $profile->{packages});
 			foreach my $pkg (@pkglist) {

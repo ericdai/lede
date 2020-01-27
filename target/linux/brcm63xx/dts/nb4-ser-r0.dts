@@ -9,40 +9,46 @@
 	compatible = "sfr,nb4-ser-r0", "brcm,bcm6358";
 
 	chosen {
-		bootargs = "root=/dev/mtdblock2 rootfstype=squashfs,jffs2 noinitrd console=ttyS0,115200";
+		bootargs = "rootfstype=squashfs,jffs2 noinitrd console=ttyS0,115200";
 		stdout-path = "serial0:115200n8";
 	};
 
-	gpio-keys-polled {
+	keys {
 		compatible = "gpio-keys-polled";
 		#address-cells = <1>;
 		#size-cells = <0>;
 		poll-interval = <20>;
-		debounce-interval = <60>;
 
 		service {
 			label = "service";
 			gpios = <&pinctrl 27 1>;
 			linux,code = <BTN_0>;
+			debounce-interval = <60>;
 		};
+
 		clip {
 			label = "clip";
 			gpios = <&pinctrl 31 1>;
 			linux,code = <BTN_1>;
+			debounce-interval = <60>;
 		};
+
 		reset {
 			label = "reset";
 			gpios = <&pinctrl 34 1>;
 			linux,code = <KEY_RESTART>;
+			debounce-interval = <60>;
 		};
+
 		wps {
 			label = "wps";
 			gpios = <&pinctrl 37 1>;
 			linux,code = <KEY_WPS_BUTTON>;
+			debounce-interval = <60>;
 		};
 	};
 
-	gpio-leds {
+	leds {
 		compatible = "gpio-leds";
 
 		traffic_white {
@@ -102,7 +108,9 @@
 &pflash {
 	status = "ok";
 
-	linux,part-probe = "bcm63xxpart";
+	partitions {
+		compatible = "brcm,bcm963xx-cfe-nor-partitions";
+	};
 };
 
 &uart0 {

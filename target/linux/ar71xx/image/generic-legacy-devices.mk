@@ -5,6 +5,12 @@ define LegacyDevice/A60
 endef
 LEGACY_DEVICES += A60
 
+define LegacyDevice/SGRW500N85BV2
+  DEVICE_TITLE := GRENTECH SGR-W500-N85b v2.0
+  DEVICE_PACKAGES := kmod-usb-core kmod-usb2
+endef
+LEGACY_DEVICES += SGRW500N85BV2
+
 define LegacyDevice/ALFANX
   DEVICE_TITLE := ALFA Network N2/N5 board
 endef
@@ -104,7 +110,7 @@ endef
 LEGACY_DEVICES += AP143_16M
 
 define LegacyDevice/AP147_010
-  DEVICE_TITLE := Qualcomm Atheros AP147-010 reference board
+  DEVICE_TITLE := Letv SuperRouter
   DEVICE_PACKAGES := kmod-usb-core kmod-usb2 kmod-usb-storage
 endef
 LEGACY_DEVICES += AP147_010
@@ -142,13 +148,6 @@ define LegacyDevice/TUBE2H16M
   DEVICE_TITLE := ALFA Network Tube2H board (16MB flash)
 endef
 LEGACY_DEVICES += TUBE2H16M
-
-define LegacyDevice/F9K1115V2
-  DEVICE_TITLE := Belkin AC1750DB (F9K1115V2)
-  DEVICE_PACKAGES := kmod-usb-core kmod-usb2 kmod-usb3 kmod-usb-ledtrig-usbport \
-	kmod-ath10k ath10k-firmware-qca988x
-endef
-LEGACY_DEVICES += F9K1115V2
 
 define LegacyDevice/DIR505A1
   DEVICE_TITLE := D-Link DIR-505 rev. A1

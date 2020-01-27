@@ -9,11 +9,11 @@
 	compatible = "brcm,bcm96368mvwg", "brcm,bcm6368";
 
 	chosen {
-		bootargs = "root=/dev/mtdblock2 rootfstype=squashfs,jffs2 noinitrd console=ttyS0,115200";
+		bootargs = "rootfstype=squashfs,jffs2 noinitrd console=ttyS0,115200";
 		stdout-path = "serial0:115200n8";
 	};
 
-	gpio-leds {
+	leds {
 		compatible = "gpio-leds";
 
 		dsl_green {
@@ -43,7 +43,9 @@
 &pflash {
 	status = "ok";
 
-	linux,part-probe = "bcm63xxpart";
+	partitions {
+		compatible = "brcm,bcm963xx-cfe-nor-partitions";
+	};
 };
 
 &pinctrl {

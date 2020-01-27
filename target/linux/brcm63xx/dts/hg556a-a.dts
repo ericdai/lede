@@ -9,40 +9,46 @@
 	compatible = "huawei,hg556a-a", "brcm,bcm6358";
 
 	chosen {
-		bootargs = "root=/dev/mtdblock2 rootfstype=squashfs,jffs2 noinitrd console=ttyS0,115200";
+		bootargs = "rootfstype=squashfs,jffs2 noinitrd console=ttyS0,115200";
 		stdout-path = "serial0:115200n8";
 	};
 
-	gpio-keys-polled {
+	keys {
 		compatible = "gpio-keys-polled";
 		#address-cells = <1>;
 		#size-cells = <0>;
 		poll-interval = <20>;
-		debounce-interval = <60>;
 
 		help {
 			label = "help";
 			gpios = <&pinctrl 8 1>;
 			linux,code = <KEY_HELP>;
+			debounce-interval = <60>;
 		};
+
 		wlan {
 			label = "wlan";
 			gpios = <&pinctrl 9 1>;
 			linux,code = <KEY_WLAN>;
+			debounce-interval = <60>;
 		};
+
 		restart {
 			label = "restart";
 			gpios = <&pinctrl 10 1>;
 			linux,code = <KEY_RESTART>;
+			debounce-interval = <60>;
 		};
+
 		reset {
 			label = "reset";
 			gpios = <&pinctrl 11 1>;
 			linux,code = <KEY_CONFIG>;
+			debounce-interval = <60>;
 		};
 	};
 
-	gpio-leds {
+	leds {
 		compatible = "gpio-leds";
 
 		message_red {
@@ -105,28 +111,33 @@
 &pflash {
 	status = "ok";
 
-	linux,part-probe = "bcm63xxpart";
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
 
-	cfe@0 {
-		label = "CFE";
-		reg = <0x000000 0x020000>;
-		read-only;
-	};
+		cfe@0 {
+			label = "CFE";
+			reg = <0x000000 0x020000>;
+			read-only;
+		};
 
-	linux@20000 {
-		label = "linux";
-		reg = <0x020000 0xec0000>;
-	};
+		linux@20000 {
+			label = "linux";
+			reg = <0x020000 0xec0000>;
+			compatible = "brcm,bcm963xx-imagetag";
+		};
 
-	cal_data@ee0000 {
-		label = "cal_data";
-		reg = <0xee0000 0x100000>;
-		read-only;
-	};
+		cal_data@ee0000 {
+			label = "cal_data";
+			reg = <0xee0000 0x100000>;
+			read-only;
+		};
 
-	nvram@fe0000 {
-		label = "nvram";
-		reg = <0xfe0000 0x020000>;
+		nvram@fe0000 {
+			label = "nvram";
+			reg = <0xfe0000 0x020000>;
+		};
 	};
 };
 

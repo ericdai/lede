@@ -9,14 +9,16 @@ platform_check_image() {
 	return 0
 }
 
-# use default for platform_do_upgrade()
+platform_do_upgrade() {
+	local board=$(board_name)
 
-disable_watchdog() {
-	killall watchdog
-	( ps | grep -v 'grep' | grep '/dev/watchdog' ) && {
-		echo 'Could not disable watchdog'
-		return 1
-	}
+	case "$board" in
+	ocedo,panda|\
+	sophos,red-15w-rev1)
+		nand_do_upgrade "$ARGV"
+		;;
+	*)
+		default_do_upgrade "$ARGV"
+		;;
+	esac
 }
-
-append sysupgrade_pre_upgrade disable_watchdog

@@ -9,31 +9,32 @@
 	compatible = "brcm,bcm96318ref_p300", "brcm,bcm6318";
 
 	chosen {
-		bootargs = "root=/dev/mtdblock2 rootfstype=squashfs,jffs2 noinitrd console=ttyS0,115200";
+		bootargs = "rootfstype=squashfs,jffs2 noinitrd console=ttyS0,115200";
 		stdout-path = "serial0:115200n8";
 	};
 
-	gpio-keys-polled {
+	keys {
 		compatible = "gpio-keys-polled";
 		#address-cells = <1>;
 		#size-cells = <0>;
 		poll-interval = <20>;
-		debounce-interval = <60>;
 
 		wps {
 			label = "wps";
 			gpios = <&pinctrl 33 1>;
 			linux,code = <KEY_WPS_BUTTON>;
+			debounce-interval = <60>;
 		};
 
 		reset {
 			label = "reset";
 			gpios = <&pinctrl 34 1>;
 			linux,code = <KEY_RESTART>;
+			debounce-interval = <60>;
 		};
-        };
+	};
 
-	gpio-leds {
+	leds {
 		compatible = "gpio-leds";
 
 		inet {
@@ -72,7 +73,9 @@
 		#address-cells = <1>;
 		#size-cells = <1>;
 
-		linux,part-probe = "bcm63xxpart";
+		partitions {
+			compatible = "brcm,bcm963xx-cfe-nor-partitions";
+		};
 	};
 };
 

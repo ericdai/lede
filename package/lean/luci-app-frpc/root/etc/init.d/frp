@@ -80,7 +80,7 @@ conf_proxy_add() {
 	[ -n "$plugin_unix_path" ] && echo "plugin_unix_path=$plugin_unix_path" >>$tmpconf
 	
 	[ -n "$stcp_role" ] && {
-		if [ "$stcp_role" == "vistor" ]; then
+		if [ "$stcp_role" == "visitor" ]; then
 			echo "role=$stcp_role" >>$tmpconf
 			[ -n "$local_ip" ] && echo "bind_addr=$local_ip" >>$tmpconf
 			[ -n "$local_port" ] && echo "bind_port=$local_port" >>$tmpconf
@@ -159,7 +159,7 @@ start() {
 
 	config_get server_addr common server_addr
 	config_get server_port common server_port
-	config_get privilege_token common privilege_token
+	config_get token common token
 	config_get enable_cpool common enable_cpool
 	config_get pool_count common pool_count
 	config_get log_level common log_level
@@ -179,7 +179,7 @@ start() {
 	echo "[common]" >$tmpconf
 	echo "server_addr=${server_addr}" >>$tmpconf
 	echo "server_port=${server_port}" >>$tmpconf
-	echo "privilege_token=${privilege_token}" >>$tmpconf
+	echo "token=${token}" >>$tmpconf
 	echo "log_level=${log_level}" >>$tmpconf
 	echo "log_max_days=${log_max_days}" >>$tmpconf
 	echo "protocol=${protocol}" >>$tmpconf
